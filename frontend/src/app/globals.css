@@ -10,8 +10,16 @@
   --radius: 0.5rem;
 }
 
-body {
-  background-color: var(--color-neutral);
-  color: var(--color-text);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+@layer base {
+  * {
+    @apply border-primary-light;
+  }
+
+  body {
+    @apply bg-neutral text-text;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply text-primary font-bold;
+  }
 }
