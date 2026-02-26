@@ -1,1 +1,25 @@
 @import "tailwindcss";
+
+@theme inline {
+  --color-primary: #8B5A3C;
+  --color-primary-light: #D4A574;
+  --color-accent: #F5A962;
+  --color-neutral: #F9F8F6;
+  --color-text: #2C2420;
+  
+  --radius: 0.5rem;
+}
+
+@layer base {
+  * {
+    @apply border-primary-light;
+  }
+
+  body {
+    @apply bg-neutral text-text;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply text-primary font-bold;
+  }
+}
