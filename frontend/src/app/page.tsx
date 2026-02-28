@@ -1,4 +1,5 @@
 import Link from "next/link";
+import AtlantaMapPreview from "@/components/AtlantaMapPreview";
 
 export const metadata = {
   title: "BeanCompassATL - Discover Atlanta's Best Coffee Shops",
@@ -70,15 +71,10 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Hero Image Placeholder */}
-            <div className="relative h-96 sm:h-full min-h-96 rounded-2xl overflow-hidden bg-gradient-to-br from-amber-600 to-orange-500 shadow-2xl">
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="text-center text-white/30">
-                  <p className="text-6xl mb-4">☕</p>
-                  <p className="text-xl font-semibold">Atlanta Coffee Map</p>
-                </div>
-              </div>
-            </div>
+            {/* Atlanta Map Preview */}
+            <Link href="/map" className="block h-96 sm:h-[28rem] min-h-96 rounded-2xl overflow-hidden shadow-2xl ring-2 ring-amber-200/50 hover:ring-amber-400 transition-all">
+              <AtlantaMapPreview />
+            </Link>
           </div>
         </div>
       </section>
@@ -182,7 +178,7 @@ export default function Home() {
             </div>
           </div>
           <div className="border-t border-amber-200 pt-8 text-center text-gray-500">
-            <p>&copy; 2024 BeanCompassATL. All rights reserved.</p>
+            <p>&copy; 2026 BeanCompassATL. All rights reserved.</p>
           </div>
         </div>
       </footer>
