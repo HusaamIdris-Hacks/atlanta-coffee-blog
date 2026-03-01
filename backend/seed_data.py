@@ -2,7 +2,7 @@
 
 from sqlalchemy import select
 
-from database import AsyncSessionLocal
+from sqlalchemy.ext.asyncio import AsyncSession
 from models import CoffeeShop
 
 SHOPS = [
@@ -153,12 +153,12 @@ SHOPS = [
 ]
 
 
-async def seed_db() -> None:
+async def seed_db(session: "AsyncSession") -> None:
     """Seed coffee shops if the table is empty. Call after init_db."""
-    async with AsyncSessionLocal() as session:
-        result = await session.execute(select(CoffeeShop).limit(1))
-        if result.scalar_one_or_none() is not None:
-            return  # Already seeded
+   
+    result = await session.execute(select(CoffeeShop).limit(1))
+    if result.scalar_one_or_none() is not None:
+        return  # Already seeded
 
-        session.add_all(SHOPS)
-        await session.commit()
+    session.add_all(SHOPS)
+    await session.commit()
