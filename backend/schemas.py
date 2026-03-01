@@ -2,7 +2,7 @@
 
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 
 
 class CoffeeShopBase(BaseModel):
@@ -31,3 +31,29 @@ class CoffeeShopDetailResponse(CoffeeShopResponse):
 
     avg_rating: float | None
     review_count: int
+
+# Auth request/response
+class UserCreate(BaseModel):
+    email: EmailStr
+    password: str
+    name: str | None = None
+
+
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
+
+
+class TokenResponse(BaseModel):
+    access_token: str
+
+
+class UserResponse(BaseModel):
+    id: int
+    email: str
+    name: str | None = None
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
