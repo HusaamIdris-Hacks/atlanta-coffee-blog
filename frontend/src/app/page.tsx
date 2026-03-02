@@ -1,5 +1,6 @@
 import Link from "next/link";
 import AtlantaMapPreview from "@/components/AtlantaMapPreview";
+import NavBar from "@/components/NavBar";
 
 export const metadata = {
   title: "BeanCompassATL - Discover Atlanta's Best Coffee Shops",
@@ -9,25 +10,7 @@ export const metadata = {
 export default function Home() {
   return (
     <div className="min-h-screen">
-      {/* Navigation */}
-      <nav className="sticky top-0 z-50 backdrop-blur-md bg-white/80 border-b border-amber-900/10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center">
-              <span className="text-amber-900 font-bold text-lg">☕</span>
-            </div>
-            <span className="text-2xl font-bold text-amber-900">BeanCompassATL</span>
-          </div>
-          <div className="flex items-center gap-6">
-            <Link
-              href="/map"
-              className="px-6 py-2 rounded-full bg-amber-800 text-white font-semibold hover:bg-amber-700 transition-colors"
-            >
-              Start Exploring
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <NavBar variant="default" />
 
       {/* Hero Section */}
       <section className="relative overflow-hidden px-4 sm:px-6 lg:px-8 py-20 sm:py-32">
