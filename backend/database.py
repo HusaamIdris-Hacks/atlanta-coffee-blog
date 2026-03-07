@@ -1,5 +1,6 @@
 import os
 
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from models import Base
@@ -33,6 +34,18 @@ async def init_db() -> None:
 
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+        # Add social columns if missing (migration for existing DBs)
+        for col in ("instagram", "twitter", "facebook"):
+            try:
+                await conn.execute(text(f"ALTER TABLE coffee_shops ADD COLUMN {col} VARCHAR(255)"))
+            except Exception:
+                pass  # Column already exists
+
+        # Add users.name if missing (migration for existing DBs)
+        try:
+            await conn.execute(text("ALTER TABLE users ADD COLUMN name VARCHAR(255)"))
+        except Exception:
+            pass  # Column already exists
 
 
 async def get_db():

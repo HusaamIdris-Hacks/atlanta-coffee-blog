@@ -15,6 +15,9 @@ class CoffeeShop(Base):
     lng: Mapped[float] = mapped_column(Float, nullable=False)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     website: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    instagram: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    twitter: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    facebook: Mapped[str | None] = mapped_column(String(255), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     favorites: Mapped[list["Favorite"]] = relationship("Favorite", back_populates="shop")

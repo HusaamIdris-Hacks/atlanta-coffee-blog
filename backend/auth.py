@@ -46,3 +46,19 @@ async def get_current_user(
     if not user:
         raise HTTPException(401, "User not found")
     return user
+
+
+async def get_current_user_optional(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    db: AsyncSession = Depends(get_db)
+) -> User | None:
+    """Return current user if authenticated, else None. Does not raise."""
+    if not credentials or not SECRET_KEY:
+        return None
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = int(payload["sub"])
+    except (JWTError, KeyError, ValueError):
+        return None
+    result = await db.execute(select(User).where(User.id == user_id))
+    return result.scalar_one_or_none()

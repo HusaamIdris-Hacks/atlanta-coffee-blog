@@ -1,7 +1,6 @@
 from dotenv import load_dotenv
 from pathlib import Path
 
-# Load .env and .env.local (local overrides) - must run before imports that use env vars
 load_dotenv()
 env_local = Path(__file__).resolve().parent / ".env.local"
 if env_local.exists():
@@ -11,7 +10,7 @@ from fastapi import FastAPI  # noqa: E402
 from fastapi.middleware.cors import CORSMiddleware  # noqa: E402
 
 from database import AsyncSessionLocal, init_db  # noqa: E402
-from routers import shops, auth  # noqa: E402
+from routers import shops, auth, reviews, favorite  # noqa: E402
 from seed_data import seed_db  # noqa: E402
 from services.foursquare import (  # noqa: E402
     fetch_coffee_shops,
@@ -31,7 +30,6 @@ logging.basicConfig(level=logging.INFO)
 async def lifespan(app: FastAPI):
     await init_db()
 
-    #Fetch from Foursquare; skip if synced within last 24 hours
     if should_fetch_from_foursquare():
         shops = await fetch_coffee_shops()
         if shops:
@@ -66,6 +64,8 @@ app.add_middleware(
 
 app.include_router(shops.router)
 app.include_router(auth.router)
+app.include_router(reviews.router)
+app.include_router(favorite.router)
 
 
 @app.get("/api/health")

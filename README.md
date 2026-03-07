@@ -50,8 +50,10 @@ Copy `frontend/.env.local.example` to `frontend/.env.local` and adjust `NEXT_PUB
 
 ## Roadmap
 
-- [ ] Interactive map (Mapbox or Leaflet)
-- [ ] Shop data with descriptions and websites
-- [ ] User auth (login/signup)
-- [ ] Favorites
-- [ ] Thoughts/reviews per shop
+- [x] Interactive map (Mapbox)
+- [x] Shop data with descriptions and websites
+- [x] Social media links (Instagram, X, Facebook) on shop popups
+- [x] Clickable address → Google Maps directions
+- [x] User auth (login/signup)
+- [x] Favorites
+- [x] Thoughts/reviews per shop

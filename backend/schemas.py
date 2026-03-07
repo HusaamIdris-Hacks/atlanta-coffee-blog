@@ -2,7 +2,7 @@
 
 from datetime import datetime
 
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 
 
 class CoffeeShopBase(BaseModel):
@@ -14,6 +14,9 @@ class CoffeeShopBase(BaseModel):
     lng: float
     description: str | None
     website: str | None
+    instagram: str | None = None
+    twitter: str | None = None
+    facebook: str | None = None
 
 
 class CoffeeShopResponse(CoffeeShopBase):
@@ -26,11 +29,22 @@ class CoffeeShopResponse(CoffeeShopBase):
         from_attributes = True
 
 
+class UserReviewInShop(BaseModel):
+    """Current user's review when viewing a shop (for edit/display)."""
+
+    id: int
+    rating: int
+    comment: str | None
+    updated_at: datetime
+
+
 class CoffeeShopDetailResponse(CoffeeShopResponse):
     """Single shop with reviews summary."""
 
     avg_rating: float | None
     review_count: int
+    is_favorited: bool | None = None  # None when not authenticated
+    user_review: UserReviewInShop | None = None  # None when not authenticated or no review
 
 # Auth request/response
 class UserCreate(BaseModel):
@@ -56,4 +70,43 @@ class UserResponse(BaseModel):
 
     class Config:
         from_attributes = True
+        
+class UserShopBase(BaseModel):
+    """Shared user + shop reference for favorites and reviews."""
 
+    user_id: int
+    shop_id: int
+
+
+class UserShopResponseBase(UserShopBase):
+    """Shared response fields for favorites and reviews."""
+
+    id: int
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class FavoriteCreate(UserShopBase):
+    pass
+
+
+class FavoriteResponse(UserShopResponseBase):
+    pass
+
+
+class ReviewCreate(UserShopBase):
+    rating: int = Field(ge=1, le=5, description="Rating from 1 to 5")
+    comment: str | None = None
+
+
+class ReviewUpdate(BaseModel):
+    rating: int | None = Field(default=None, ge=1, le=5, description="Rating from 1 to 5")
+    comment: str | None = None
+
+
+class ReviewResponse(UserShopResponseBase):
+    rating: int
+    comment: str | None
+    updated_at: datetime

@@ -9,12 +9,24 @@ export interface CoffeeShop {
   lng: number;
   description: string | null;
   website: string | null;
+  instagram: string | null;
+  twitter: string | null;
+  facebook: string | null;
   created_at: string;
+}
+
+export interface UserReviewInShop {
+  id: number;
+  rating: number;
+  comment: string | null;
+  updated_at: string;
 }
 
 export interface CoffeeShopDetail extends CoffeeShop {
   avg_rating: number | null;
   review_count: number;
+  is_favorited: boolean | null;
+  user_review: UserReviewInShop | null;
 }
 
 export async function getShops(): Promise<CoffeeShop[]> {
@@ -23,8 +35,15 @@ export async function getShops(): Promise<CoffeeShop[]> {
   return res.json();
 }
 
-export async function getShopById(id: number): Promise<CoffeeShopDetail> {
-  const res = await fetch(`${API_BASE}/api/shops/${id}`);
+export async function getShopById(
+  id: number,
+  token?: string | null
+): Promise<CoffeeShopDetail> {
+  const headers: HeadersInit = {};
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+  const res = await fetch(`${API_BASE}/api/shops/${id}`, { headers });
   if (!res.ok) throw new Error("Failed to fetch shop");
   return res.json();
 }
