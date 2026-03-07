@@ -7,6 +7,7 @@ import "mapbox-gl/dist/mapbox-gl.css";
 
 import { getShops, getShopById } from "@/lib/api";
 import type { CoffeeShop, CoffeeShopDetail } from "@/lib/api";
+import { useAuth } from "@/contexts/AuthContext";
 import ShopPopupCard from "./ShopPopupCard";
 
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || "";
@@ -17,6 +18,7 @@ const ATLANTA_CENTER = {
 };
 
 export default function CoffeeMap() {
+  const { token } = useAuth();
   const mapRef = useRef<MapRef>(null);
   const [shops, setShops] = useState<CoffeeShop[]>([]);
   const [selectedShop, setSelectedShop] = useState<CoffeeShopDetail | null>(
@@ -32,20 +34,23 @@ export default function CoffeeMap() {
       .finally(() => setLoading(false));
   }, []);
 
-  const handleMarkerClick = useCallback(async (shop: CoffeeShop) => {
-    try {
-      const detail = await getShopById(shop.id);
-      setSelectedShop(detail);
+  const handleMarkerClick = useCallback(
+    async (shop: CoffeeShop) => {
+      try {
+        const detail = await getShopById(shop.id, token);
+        setSelectedShop(detail);
 
-      mapRef.current?.flyTo({
-        center: [shop.lng, shop.lat],
-        zoom: 14,
-        duration: 800,
-      });
-    } catch (err) {
-      console.error("Failed to load shop details:", err);
-    }
-  }, []);
+        mapRef.current?.flyTo({
+          center: [shop.lng, shop.lat],
+          zoom: 14,
+          duration: 800,
+        });
+      } catch (err) {
+        console.error("Failed to load shop details:", err);
+      }
+    },
+    [token]
+  );
 
   const handleClosePopup = useCallback(() => {
     setSelectedShop(null);

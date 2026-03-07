@@ -85,6 +85,21 @@ def _parse_place(place: dict[str, Any]) -> CoffeeShop | None:
     if website and not website.startswith("http"):
         website = f"https://foursquare.com{website}" if website.startswith("/") else None
 
+    social = place.get("social_media") or {}
+    instagram = social.get("instagram")
+    if instagram and not instagram.startswith("http"):
+        instagram = f"https://instagram.com/{instagram.lstrip('@')}" if instagram else None
+    instagram = instagram[:255] if instagram else None
+
+    twitter = social.get("twitter")
+    if twitter and not twitter.startswith("http"):
+        twitter = f"https://twitter.com/{twitter.lstrip('@')}" if twitter else None
+    twitter = twitter[:255] if twitter else None
+
+    facebook_id = social.get("facebook_id")
+    facebook = f"https://facebook.com/{facebook_id}" if facebook_id else None
+    facebook = facebook[:255] if facebook else None
+
     return CoffeeShop(
         name=name,
         address=address,
@@ -92,6 +107,9 @@ def _parse_place(place: dict[str, Any]) -> CoffeeShop | None:
         lng=float(lng),
         description=description[:500] if description else None,
         website=website[:500] if website else None,
+        instagram=instagram,
+        twitter=twitter,
+        facebook=facebook,
     )
 
 

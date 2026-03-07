@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from database import get_db
 from models import User
 from schemas import TokenResponse, UserCreate, UserLogin, UserResponse
-from auth import create_access_token, get_current_user, verify_password, hash_password
+from auth import create_access_token, get_current_user_optional, verify_password, hash_password
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
@@ -52,5 +52,22 @@ async def login(user_data: UserLogin, db: AsyncSession = Depends(get_db)):
 
 
 @router.get("/me", response_model=UserResponse)
-async def get_me(current_user: User = Depends(get_current_user)):
+async def get_me(current_user: User | None = Depends(get_current_user_optional)):
+    if not current_user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
     return current_user
+
+
+@router.get("/users", response_model=list[UserResponse])
+async def get_users(db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(User).order_by(User.id))
+    users = result.scalars().all()
+    return [UserResponse.model_validate(u) for u in users]
+
+
+@router.post("/logout", response_model=TokenResponse)
+async def logout(current_user: User | None = Depends(get_current_user_optional)):
+    if not current_user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
+    return TokenResponse(access_token="")
+

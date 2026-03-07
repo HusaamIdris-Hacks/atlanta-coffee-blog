@@ -13,6 +13,7 @@ export default function LoginPage() {
   useEffect(() => {
     if (!loading && user) router.replace("/map");
   }, [user, loading, router]);
+  
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");

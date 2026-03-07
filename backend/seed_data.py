@@ -13,6 +13,7 @@ SHOPS = [
         lng=-84.3692,
         description="Beloved local roaster with a cozy Midtown location. Known for expertly roasted beans and a relaxed atmosphere.",
         website="https://www.batdorfandbronson.com",
+        instagram="https://instagram.com/dancinggoatscoffee",
     ),
     CoffeeShop(
         name="Condesa Coffee",
@@ -21,6 +22,7 @@ SHOPS = [
         lng=-84.3695,
         description="Industrial-chic spot in Old Fourth Ward serving single-origin pour-overs and house-made pastries.",
         website="https://www.condesacoffee.com",
+        instagram="https://instagram.com/condesacoffee",
     ),
     CoffeeShop(
         name="Spiller Park Coffee",
@@ -29,6 +31,7 @@ SHOPS = [
         lng=-84.3655,
         description="Hip coffee counter inside Ponce City Market. Great for a quick espresso before exploring the food hall.",
         website="https://www.spillerpark.com",
+        instagram="https://instagram.com/spillerpark",
     ),
     CoffeeShop(
         name="Rev Coffee Roasters",
@@ -37,6 +40,7 @@ SHOPS = [
         lng=-84.3380,
         description="South Atlanta roastery and cafe with a focus on community. Excellent cold brew and seasonal drinks.",
         website="https://www.revcoffee.com",
+        instagram="https://instagram.com/revcoffee",
     ),
     CoffeeShop(
         name="Chrome Yellow Trading Co",
@@ -45,6 +49,7 @@ SHOPS = [
         lng=-84.3410,
         description="East Atlanta Village favorite with vintage vibes. Serves Counter Culture coffee and fresh baked goods.",
         website="https://www.chromeyellowtrading.com",
+        instagram="https://instagram.com/chromeyellowtrading",
     ),
     CoffeeShop(
         name="Aurora Coffee",
@@ -53,6 +58,7 @@ SHOPS = [
         lng=-84.3520,
         description="Virginia Highlands staple since 1992. Cozy neighborhood spot with strong espresso and friendly baristas.",
         website="https://www.auroracoffee.com",
+        instagram="https://instagram.com/auroracoffee",
     ),
     CoffeeShop(
         name="Brash Coffee",
@@ -133,6 +139,7 @@ SHOPS = [
         lng=-84.3685,
         description="Buckhead roastery and cafe. Single-origin offerings and a sleek, modern space.",
         website="https://www.eastpolecoffee.com",
+        instagram="https://instagram.com/eastpolecoffee",
     ),
     CoffeeShop(
         name="Sublime Doughnuts & Coffee",
