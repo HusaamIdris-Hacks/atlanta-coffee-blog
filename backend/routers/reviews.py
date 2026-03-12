@@ -12,8 +12,13 @@ from datetime import datetime, timezone
 router = APIRouter(prefix="/api/reviews", tags=["reviews"])
 
 @router.get("", response_model=list[ReviewResponse])
-async def get_reviews(db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(Review).order_by(Review.id))
+async def get_reviews(shop_id: int | None = None, db: AsyncSession = Depends(get_db)):
+    if shop_id is not None:
+        result = await db.execute(
+            select(Review).where(Review.shop_id == shop_id).order_by(Review.updated_at.desc())
+        )
+    else:
+        result = await db.execute(select(Review).order_by(Review.id))
     reviews = result.scalars().all()
     return [ReviewResponse.model_validate(r) for r in reviews]
 

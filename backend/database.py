@@ -41,11 +41,17 @@ async def init_db() -> None:
             except Exception:
                 pass  # Column already exists
 
-        # Add users.name if missing (migration for existing DBs)
-        try:
-            await conn.execute(text("ALTER TABLE users ADD COLUMN name VARCHAR(255)"))
-        except Exception:
-            pass  # Column already exists
+        # Add users columns if missing (migration for existing DBs)
+        for col, col_type in [
+            ("name", "VARCHAR(255)"),
+            ("bio", "TEXT"),
+            ("profile_picture", "VARCHAR(500)"),
+            ("profile_ring_color", "VARCHAR(20)"),
+        ]:
+            try:
+                await conn.execute(text(f"ALTER TABLE users ADD COLUMN {col} {col_type}"))
+            except Exception:
+                pass  # Column already exists
 
 
 async def get_db():

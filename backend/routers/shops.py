@@ -44,6 +44,7 @@ async def get_shop(
     review_count = row[1] or 0
 
     is_favorited: bool | None = None
+    favorite_id: int | None = None
     user_review: UserReviewInShop | None = None
 
     if current_user:
@@ -54,7 +55,10 @@ async def get_shop(
                 Favorite.shop_id == shop_id,
             )
         )
-        is_favorited = fav_result.scalar_one_or_none() is not None
+        fav = fav_result.scalar_one_or_none()
+        is_favorited = fav is not None
+        if fav:
+            favorite_id = fav.id
 
         # Get user's review if any
         review_result = await db.execute(
@@ -87,5 +91,6 @@ async def get_shop(
         avg_rating=round(avg_rating, 1) if avg_rating is not None else None,
         review_count=review_count,
         is_favorited=is_favorited,
+        favorite_id=favorite_id,
         user_review=user_review,
     )

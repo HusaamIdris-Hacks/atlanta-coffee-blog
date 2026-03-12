@@ -42,7 +42,7 @@ export default function RegisterPage() {
             <div className="text-center mb-8">
               <h1 className="text-3xl font-bold text-amber-900">Create account</h1>
               <p className="text-gray-500 mt-2">
-                Join BeanCompassATL to save favorites and share reviews
+                Join Brew ATL to save favorites and share reviews
               </p>
             </div>
             <form onSubmit={handleSubmit} className="space-y-6">

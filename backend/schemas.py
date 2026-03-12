@@ -44,6 +44,7 @@ class CoffeeShopDetailResponse(CoffeeShopResponse):
     avg_rating: float | None
     review_count: int
     is_favorited: bool | None = None  # None when not authenticated
+    favorite_id: int | None = None  # ID to use for remove, when is_favorited
     user_review: UserReviewInShop | None = None  # None when not authenticated or no review
 
 # Auth request/response
@@ -66,10 +67,24 @@ class UserResponse(BaseModel):
     id: int
     email: str
     name: str | None = None
+    bio: str | None = None
+    profile_picture: str | None = None
+    profile_ring_color: str | None = None
     created_at: datetime
 
     class Config:
         from_attributes = True
+
+
+class UserProfileUpdate(BaseModel):
+    name: str | None = None
+    bio: str | None = None
+    profile_ring_color: str | None = None
+
+
+class ChangePasswordRequest(BaseModel):
+    current_password: str
+    new_password: str = Field(min_length=6)
         
 class UserShopBase(BaseModel):
     """Shared user + shop reference for favorites and reviews."""
@@ -109,4 +124,19 @@ class ReviewUpdate(BaseModel):
 class ReviewResponse(UserShopResponseBase):
     rating: int
     comment: str | None
+    updated_at: datetime
+
+
+class ReviewWithShopResponse(BaseModel):
+    """Review with shop info for profile 'my reviews' display."""
+
+    id: int
+    shop_id: int
+    shop_name: str
+    shop_address: str
+    shop_lat: float
+    shop_lng: float
+    rating: int
+    comment: str | None
+    created_at: datetime
     updated_at: datetime

@@ -3,7 +3,7 @@ import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
 
 export const metadata: Metadata = {
-  title: "BeanCompassATL - Discover Atlanta's Best Coffee Shops",
+  title: "Brew ATL - Discover Atlanta's Best Coffee Shops",
   description: "Explore the finest coffee destinations across Atlanta with our interactive map. Find your new favorite spot.",
 };
 

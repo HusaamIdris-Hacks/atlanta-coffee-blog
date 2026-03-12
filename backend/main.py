@@ -1,5 +1,5 @@
 from dotenv import load_dotenv
-from pathlib import Path
+from pathlib import Path  # noqa: E402
 
 load_dotenv()
 env_local = Path(__file__).resolve().parent / ".env.local"
@@ -8,6 +8,7 @@ if env_local.exists():
 
 from fastapi import FastAPI  # noqa: E402
 from fastapi.middleware.cors import CORSMiddleware  # noqa: E402
+from fastapi.staticfiles import StaticFiles  # noqa: E402
 
 from database import AsyncSessionLocal, init_db  # noqa: E402
 from routers import shops, auth, reviews, favorite  # noqa: E402
@@ -66,6 +67,11 @@ app.include_router(shops.router)
 app.include_router(auth.router)
 app.include_router(reviews.router)
 app.include_router(favorite.router)
+
+# Serve uploaded avatars
+static_dir = Path(__file__).resolve().parent / "static"
+static_dir.mkdir(exist_ok=True)
+app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
 
 
 @app.get("/api/health")

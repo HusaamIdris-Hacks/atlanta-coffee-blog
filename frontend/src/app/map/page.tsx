@@ -2,7 +2,7 @@ import CoffeeMap from "@/components/CoffeeMap";
 import NavBar from "@/components/NavBar";
 
 export const metadata = {
-  title: "Map - BeanCompassATL",
+  title: "Map - Brew ATL",
   description: "Explore Atlanta coffee shops on an interactive map.",
 };
 

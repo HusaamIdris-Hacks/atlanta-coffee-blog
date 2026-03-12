@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { getAvatarUrl } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 
 interface NavBarProps {
@@ -30,7 +31,7 @@ export default function NavBar({ variant = "default" }: NavBarProps) {
           variant === "map" ? "text-xl" : "text-2xl"
         }`}
       >
-        BeanCompassATL
+        Brew ATL
       </span>
     </Link>
   );
@@ -58,9 +59,32 @@ export default function NavBar({ variant = "default" }: NavBarProps) {
             <span className="text-sm text-gray-400">Loading...</span>
           ) : user ? (
             <div className="flex items-center gap-3">
-              <span className="text-sm text-amber-900 hidden sm:inline">
-                {user.name || user.email}
-              </span>
+              <Link
+                href="/profile"
+                className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+              >
+                <div
+                  className="w-8 h-8 rounded-full overflow-hidden border-2 shrink-0"
+                  style={{
+                    borderColor: user.profile_ring_color || "#D97706",
+                  }}
+                >
+                  {user.profile_picture ? (
+                    <img
+                      src={getAvatarUrl(user.profile_picture) ?? ""}
+                      alt=""
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <span className="w-full h-full rounded-full bg-amber-200 flex items-center justify-center text-amber-800 text-sm font-medium">
+                      {(user.name || user.email)?.[0]?.toUpperCase() ?? "?"}
+                    </span>
+                  )}
+                </div>
+                <span className="text-sm text-amber-900 hidden sm:inline font-medium hover:text-amber-700 hover:underline">
+                  {user.name || user.email}
+                </span>
+              </Link>
               <button
                 onClick={logout}
                 className="px-4 py-2 text-sm rounded-full border border-amber-800 text-amber-800 hover:bg-amber-800 hover:text-white transition-colors"
