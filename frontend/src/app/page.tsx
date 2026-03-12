@@ -3,7 +3,7 @@ import AtlantaMapPreview from "@/components/AtlantaMapPreview";
 import NavBar from "@/components/NavBar";
 
 export const metadata = {
-  title: "BeanCompassATL - Discover Atlanta's Best Coffee Shops",
+  title: "Brew ATL - Discover Atlanta's Best Coffee Shops",
   description: "Explore the finest coffee destinations across Atlanta with our interactive map. Find your new favorite spot.",
 };
 
@@ -67,7 +67,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl sm:text-5xl font-bold text-amber-900 mb-4">
-              Why BeanCompassATL?
+              Why Brew ATL?
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
               More than just a map. Discover, save, and share your favorite coffee destinations.
@@ -142,7 +142,7 @@ export default function Home() {
                 <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center">
                   <span className="text-amber-900 font-bold">☕</span>
                 </div>
-                <span className="text-lg font-bold text-amber-900">BeanCompassATL</span>
+                <span className="text-lg font-bold text-amber-900">Brew ATL</span>
               </div>
               <p className="text-gray-600">
                 Your guide to discovering the best coffee shops across Atlanta.
@@ -161,7 +161,7 @@ export default function Home() {
             </div>
           </div>
           <div className="border-t border-amber-200 pt-8 text-center text-gray-500">
-            <p>&copy; 2026 BeanCompassATL. All rights reserved.</p>
+            <p>&copy; 2026 Brew ATL. All rights reserved.</p>
           </div>
         </div>
       </footer>

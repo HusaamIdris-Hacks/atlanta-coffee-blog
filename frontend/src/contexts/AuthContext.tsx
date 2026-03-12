@@ -8,7 +8,14 @@ import {
   useRef,
   useState,
 } from "react";
-import { getMe, login as apiLogin, register as apiRegister } from "@/lib/api";
+import {
+  changePassword as apiChangePassword,
+  getMe,
+  login as apiLogin,
+  register as apiRegister,
+  updateProfile as apiUpdateProfile,
+  uploadAvatar as apiUploadAvatar,
+} from "@/lib/api";
 import type { User } from "@/lib/api";
 
 const TOKEN_KEY = "beancompass_token";
@@ -21,6 +28,10 @@ interface AuthContextValue {
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, name?: string) => Promise<void>;
   logout: () => void;
+  refreshUser: () => Promise<void>;
+  updateProfile: (data: { name?: string; bio?: string; profile_ring_color?: string | null }) => Promise<void>;
+  uploadAvatar: (file: File) => Promise<void>;
+  changePassword: (currentPassword: string, newPassword: string) => Promise<void>;
   clearError: () => void;
 }
 
@@ -109,6 +120,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setError(null);
   }, []);
 
+  const refreshUser = useCallback(async () => {
+    const stored = typeof window !== "undefined" ? localStorage.getItem(TOKEN_KEY) : null;
+    if (stored) await loadUser(stored);
+  }, [loadUser]);
+
+  const updateProfile = useCallback(
+    async (data: { name?: string; bio?: string; profile_ring_color?: string | null }) => {
+      const stored = typeof window !== "undefined" ? localStorage.getItem(TOKEN_KEY) : null;
+      if (!stored) throw new Error("Not authenticated");
+      const updated = await apiUpdateProfile(stored, data);
+      setUser(updated);
+    },
+    []
+  );
+
+  const uploadAvatar = useCallback(async (file: File) => {
+    const stored = typeof window !== "undefined" ? localStorage.getItem(TOKEN_KEY) : null;
+    if (!stored) throw new Error("Not authenticated");
+    const updated = await apiUploadAvatar(stored, file);
+    setUser(updated);
+  }, []);
+
+  const changePassword = useCallback(
+    async (currentPassword: string, newPassword: string) => {
+      const stored = typeof window !== "undefined" ? localStorage.getItem(TOKEN_KEY) : null;
+      if (!stored) throw new Error("Not authenticated");
+      const { access_token } = await apiChangePassword(stored, currentPassword, newPassword);
+      localStorage.setItem(TOKEN_KEY, access_token);
+      await loadUser(access_token);
+    },
+    [loadUser]
+  );
+
   const clearError = useCallback(() => setError(null), []);
 
   const value: AuthContextValue = {
@@ -119,6 +163,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     login,
     register,
     logout,
+    refreshUser,
+    updateProfile,
+    uploadAvatar,
+    changePassword,
     clearError,
   };
 

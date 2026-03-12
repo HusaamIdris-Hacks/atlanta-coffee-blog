@@ -31,6 +31,9 @@ class User(Base):
     email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False, index=True)
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
     name: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    bio: Mapped[str | None] = mapped_column(Text, nullable=True)
+    profile_picture: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    profile_ring_color: Mapped[str | None] = mapped_column(String(20), nullable=True)  # hex e.g. #D97706
     created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     favorites: Mapped[list["Favorite"]] = relationship("Favorite", back_populates="user")
