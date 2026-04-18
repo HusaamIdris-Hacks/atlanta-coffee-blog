@@ -4,11 +4,13 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/contexts/ToastContext";
 import NavBar from "@/components/NavBar";
 
 export default function LoginPage() {
   const router = useRouter();
   const { user, loading, login } = useAuth();
+  const { showToast } = useToast();
 
   useEffect(() => {
     if (!loading && user) router.replace("/map");
@@ -25,6 +27,7 @@ export default function LoginPage() {
     setSubmitting(true);
     try {
       await login(email, password);
+      showToast("You're signed in!", "success");
       router.push("/map");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed");
@@ -38,7 +41,7 @@ export default function LoginPage() {
       <NavBar />
       <main className="flex-1 flex items-center justify-center px-4 py-12">
         <div className="w-full max-w-md">
-          <div className="bg-white rounded-2xl border border-amber-200 shadow-xl p-8">
+          <div className="surface-card p-8 sm:p-9">
             <div className="text-center mb-8">
               <h1 className="text-3xl font-bold text-amber-900">Welcome back</h1>
               <p className="text-gray-500 mt-2">
@@ -65,7 +68,7 @@ export default function LoginPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   autoComplete="email"
-                  className="w-full px-4 py-3 rounded-lg border border-amber-200 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition"
+                  className="input-field"
                   placeholder="you@example.com"
                 />
               </div>
@@ -83,13 +86,13 @@ export default function LoginPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   autoComplete="current-password"
-                  className="w-full px-4 py-3 rounded-lg border border-amber-200 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition"
+                  className="input-field"
                 />
               </div>
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-full py-3 rounded-lg bg-amber-800 text-white font-semibold hover:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="btn-primary w-full rounded-xl py-3"
               >
                 {submitting ? "Signing in..." : "Sign in"}
               </button>

@@ -6,6 +6,7 @@
   --color-accent: #F5A962;
   --color-neutral: #F9F8F6;
   --color-text: #2C2420;
+  --color-surface: #FFFDF8;
   
   --radius: 0.5rem;
 }
@@ -16,10 +17,57 @@
   }
 
   body {
-    @apply bg-neutral text-text;
+    @apply bg-neutral text-text antialiased;
+    background-image:
+      radial-gradient(circle at 10% -5%, rgb(251 191 36 / 0.2), transparent 35%),
+      radial-gradient(circle at 95% 15%, rgb(251 146 60 / 0.15), transparent 30%),
+      linear-gradient(to bottom, #fffdf9 0%, #f9f8f6 65%, #f6f1ea 100%);
   }
 
   h1, h2, h3, h4, h5, h6 {
     @apply text-primary font-bold;
+  }
+
+  a,
+  button {
+    @apply transition-all duration-200;
+  }
+
+  ::selection {
+    background: rgb(217 119 6 / 0.18);
+    color: #3a2414;
+  }
+}
+
+@layer components {
+  .surface-card {
+    @apply rounded-2xl border border-amber-200/70 bg-white/85 shadow-xl shadow-amber-100/40 backdrop-blur-sm;
+  }
+
+  .surface-card-subtle {
+    @apply rounded-xl border border-amber-100 bg-white/80 shadow-sm;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-full bg-amber-800 px-5 py-2.5 font-semibold text-white shadow-md shadow-amber-900/20 hover:-translate-y-0.5 hover:bg-amber-700 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center rounded-full border border-amber-300 bg-white/80 px-5 py-2.5 font-semibold text-amber-900 hover:-translate-y-0.5 hover:border-amber-400 hover:bg-amber-50;
+  }
+
+  .input-field {
+    @apply w-full rounded-xl border border-amber-200 bg-white/90 px-4 py-3 outline-none ring-0 placeholder:text-gray-400 focus:border-amber-400 focus:ring-2 focus:ring-amber-300/40;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

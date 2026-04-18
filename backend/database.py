@@ -47,6 +47,27 @@ async def init_db() -> None:
         except Exception:
             pass  # Column already exists
 
+        # Add profile columns to users
+        try:
+            await conn.execute(text("ALTER TABLE users ADD COLUMN profile_picture VARCHAR(500)"))
+        except Exception:
+            pass
+        try:
+            await conn.execute(text("ALTER TABLE users ADD COLUMN profile_ring_color VARCHAR(20)"))
+        except Exception:
+            pass
+
+        try:
+            await conn.execute(text("ALTER TABLE coffee_shops ADD COLUMN foursquare_id VARCHAR(64)"))
+        except Exception:
+            pass
+        try:
+            await conn.execute(
+                text("CREATE UNIQUE INDEX IF NOT EXISTS ix_coffee_shops_foursquare_id ON coffee_shops (foursquare_id)")
+            )
+        except Exception:
+            pass
+
 
 async def get_db():
     """FastAPI dependency that yields an async database session."""

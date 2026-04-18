@@ -13,12 +13,15 @@ export default function Home() {
       <NavBar variant="default" />
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden px-4 sm:px-6 lg:px-8 py-20 sm:py-32">
+      <section className="relative overflow-hidden px-4 sm:px-6 lg:px-8 py-20 sm:py-28">
         <div className="max-w-7xl mx-auto">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div className="space-y-8">
               <div>
-                <h1 className="text-5xl sm:text-6xl font-bold text-amber-900 leading-tight">
+                <span className="inline-flex items-center rounded-full border border-amber-200 bg-white/80 px-3 py-1 text-xs font-medium uppercase tracking-[0.14em] text-amber-800">
+                  Atlanta Coffee Guide
+                </span>
+                <h1 className="mt-4 text-5xl sm:text-6xl font-bold text-amber-900 leading-tight">
                   Navigate Atlanta's Coffee Culture
                 </h1>
                 <p className="text-xl text-gray-600 mt-6 leading-relaxed">
@@ -29,16 +32,16 @@ export default function Home() {
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link
                   href="/map"
-                  className="px-8 py-3 rounded-full bg-orange-500 text-white font-semibold hover:bg-orange-600 transition-colors text-center"
+                  className="btn-primary px-8 py-3 text-center"
                 >
                   Explore the Map
                 </Link>
-                <button className="px-8 py-3 rounded-full border-2 border-amber-800 text-amber-800 font-semibold hover:bg-amber-800 hover:text-white transition-colors">
+                <Link href="#features" className="btn-secondary px-8 py-3 text-center">
                   Learn More
-                </button>
+                </Link>
               </div>
 
-              <div className="flex items-center gap-8 pt-8 border-t border-amber-200">
+              <div className="grid grid-cols-3 gap-3 pt-8 border-t border-amber-200/80">
                 <div>
                   <p className="text-3xl font-bold text-amber-900">20+</p>
                   <p className="text-gray-500">Coffee Shops</p>
@@ -55,7 +58,7 @@ export default function Home() {
             </div>
 
             {/* Atlanta Map Preview */}
-            <Link href="/map" className="block h-96 sm:h-[28rem] min-h-96 rounded-2xl overflow-hidden shadow-2xl ring-2 ring-amber-200/50 hover:ring-amber-400 transition-all">
+            <Link href="/map" className="block h-96 sm:h-112 min-h-96 rounded-3xl overflow-hidden shadow-2xl ring-1 ring-amber-200/60 hover:-translate-y-1 hover:ring-amber-400/80">
               <AtlantaMapPreview />
             </Link>
           </div>
@@ -63,7 +66,7 @@ export default function Home() {
       </section>
 
       {/* Features Section */}
-      <section className="px-4 sm:px-6 lg:px-8 py-20 bg-amber-50">
+      <section id="features" className="px-4 sm:px-6 lg:px-8 py-20 bg-amber-50/60">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl sm:text-5xl font-bold text-amber-900 mb-4">
@@ -76,7 +79,7 @@ export default function Home() {
 
           <div className="grid md:grid-cols-3 gap-8">
             {/* Feature 1 */}
-            <div className="p-8 bg-white rounded-xl border border-amber-200 hover:border-orange-500 transition-colors hover:shadow-lg">
+            <div className="surface-card p-8 hover:-translate-y-1">
               <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mb-6">
                 <span className="text-2xl">🗺️</span>
               </div>
@@ -87,7 +90,7 @@ export default function Home() {
             </div>
 
             {/* Feature 2 */}
-            <div className="p-8 bg-white rounded-xl border border-amber-200 hover:border-orange-500 transition-colors hover:shadow-lg">
+            <div className="surface-card p-8 hover:-translate-y-1">
               <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mb-6">
                 <span className="text-2xl">❤️</span>
               </div>
@@ -98,7 +101,7 @@ export default function Home() {
             </div>
 
             {/* Feature 3 */}
-            <div className="p-8 bg-white rounded-xl border border-amber-200 hover:border-orange-500 transition-colors hover:shadow-lg">
+            <div className="surface-card p-8 hover:-translate-y-1">
               <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mb-6">
                 <span className="text-2xl">⭐</span>
               </div>
@@ -113,7 +116,7 @@ export default function Home() {
 
       {/* CTA Section */}
       <section className="relative px-4 sm:px-6 lg:px-8 py-20 overflow-hidden bg-white">
-        <div className="max-w-4xl mx-auto text-center">
+        <div className="max-w-4xl mx-auto text-center surface-card p-10 sm:p-12">
           <h2 className="text-4xl sm:text-5xl font-bold text-amber-900 mb-6">
             Ready to Explore?
           </h2>
@@ -122,7 +125,7 @@ export default function Home() {
           </p>
           <Link
             href="/map"
-            className="inline-block px-10 py-4 rounded-full bg-amber-800 text-white font-bold text-lg hover:bg-amber-700 transition-colors shadow-lg hover:shadow-xl"
+            className="btn-primary px-10 py-4 text-lg"
           >
             Open Interactive Map
           </Link>
@@ -149,13 +152,13 @@ export default function Home() {
               </p>
             </div>
             <div className="flex justify-end gap-8">
-              <Link href="#" className="text-gray-500 hover:text-amber-900 transition-colors">
+              <Link href="/about" className="text-gray-500 hover:text-amber-900 transition-colors">
                 About
               </Link>
-              <Link href="#" className="text-gray-500 hover:text-amber-900 transition-colors">
+              <Link href="/contact" className="text-gray-500 hover:text-amber-900 transition-colors">
                 Contact
               </Link>
-              <Link href="#" className="text-gray-500 hover:text-amber-900 transition-colors">
+              <Link href="/privacy" className="text-gray-500 hover:text-amber-900 transition-colors">
                 Privacy
               </Link>
             </div>

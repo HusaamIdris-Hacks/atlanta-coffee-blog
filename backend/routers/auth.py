@@ -1,13 +1,19 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from pathlib import Path
+import uuid
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database import get_db
-from models import User
-from schemas import TokenResponse, UserCreate, UserLogin, UserResponse
+from models import CoffeeShop, Review, User
+from schemas import ReviewWithShopResponse, TokenResponse, UserCreate, UserLogin, UserProfileUpdate, UserResponse
 from auth import create_access_token, get_current_user_optional, verify_password, hash_password
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
+
+AVATARS_DIR = Path(__file__).resolve().parent.parent / "static" / "avatars"
+ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".webp", ".heic", ".heif"}
+MAX_FILE_SIZE = 5 * 1024 * 1024  # 5MB
 
 @router.post("/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
 async def register(user_data: UserCreate, db: AsyncSession = Depends(get_db)):
@@ -58,6 +64,37 @@ async def get_me(current_user: User | None = Depends(get_current_user_optional))
     return current_user
 
 
+@router.get("/me/reviews", response_model=list[ReviewWithShopResponse])
+async def get_my_reviews(
+    current_user: User | None = Depends(get_current_user_optional),
+    db: AsyncSession = Depends(get_db),
+):
+    if not current_user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
+    result = await db.execute(
+        select(Review, CoffeeShop)
+        .join(CoffeeShop, Review.shop_id == CoffeeShop.id)
+        .where(Review.user_id == current_user.id)
+        .order_by(Review.updated_at.desc())
+    )
+    rows = result.all()
+    return [
+        ReviewWithShopResponse(
+            id=review.id,
+            shop_id=review.shop_id,
+            shop_name=shop.name,
+            shop_address=shop.address,
+            shop_lat=shop.lat,
+            shop_lng=shop.lng,
+            rating=review.rating,
+            comment=review.comment,
+            created_at=review.created_at,
+            updated_at=review.updated_at,
+        )
+        for review, shop in rows
+    ]
+
+
 @router.get("/users", response_model=list[UserResponse])
 async def get_users(db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(User).order_by(User.id))
@@ -70,4 +107,59 @@ async def logout(current_user: User | None = Depends(get_current_user_optional))
     if not current_user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
     return TokenResponse(access_token="")
+
+@router.patch("/me", response_model=UserResponse)
+async def update_profile(
+    data: UserProfileUpdate,
+    current_user: User | None = Depends(get_current_user_optional),
+    db: AsyncSession = Depends(get_db),
+):
+    if not current_user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
+    update_data = data.model_dump(exclude_unset=True)
+    if "profile_ring_color" in update_data and update_data["profile_ring_color"] == "":
+        update_data["profile_ring_color"] = None
+    for field, value in update_data.items():
+        setattr(current_user, field, value)
+    await db.commit()
+    await db.refresh(current_user)
+    return current_user
+
+
+@router.post("/me/avatar", response_model=UserResponse)
+async def upload_avatar(
+    file: UploadFile = File(...),
+    current_user: User | None = Depends(get_current_user_optional),
+    db: AsyncSession = Depends(get_db),
+):
+    if not current_user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
+    ext = Path(file.filename or "").suffix.lower()
+    if ext not in ALLOWED_EXTENSIONS:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid file type. Allowed: {', '.join(ALLOWED_EXTENSIONS)}",
+        )
+    content = await file.read()
+    if len(content) > MAX_FILE_SIZE:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="File too large. Max 5MB.",
+        )
+    AVATARS_DIR.mkdir(parents=True, exist_ok=True)
+    filename = f"user_{current_user.id}_{uuid.uuid4().hex[:8]}{ext}"
+    filepath = AVATARS_DIR / filename
+    filepath.write_bytes(content)
+    relative_path = f"avatars/{filename}"
+    if current_user.profile_picture:
+        old_path = Path(__file__).resolve().parent.parent / "static" / current_user.profile_picture
+        if old_path.exists():
+            try:
+                old_path.unlink()
+            except OSError:
+                pass
+    current_user.profile_picture = relative_path
+    await db.commit()
+    await db.refresh(current_user)
+    return current_user
 
