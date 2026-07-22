@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { Coffee, User } from "lucide-react";
 import MapCitySearch from "@/components/MapCitySearch";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMapPageBridge } from "@/contexts/MapPageBridgeContext";
@@ -17,24 +19,26 @@ export default function NavBar({ variant = "default" }: NavBarProps) {
   const { user, loading, logout, error, clearError } = useAuth();
   const { showToast } = useToast();
   const mapBridge = useMapPageBridge();
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   const logo = (
-    <Link href="/" className="flex items-center gap-2">
+    <Link href="/" className="group flex items-center gap-2">
       <div
-        className={`bg-orange-500 rounded-full flex items-center justify-center ${
-          variant === "map" ? "w-7 h-7" : "w-8 h-8"
+        className={`grid place-items-center rounded-full bg-linear-to-br from-orange-400 to-amber-600 text-white shadow-sm transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6 ${
+          variant === "map" ? "w-7 h-7" : "w-9 h-9"
         }`}
       >
-        <span
-          className={`text-amber-900 font-bold ${
-            variant === "map" ? "text-sm" : "text-lg"
-          }`}
-        >
-          ☕
-        </span>
+        <Coffee size={variant === "map" ? 15 : 18} />
       </div>
       <span
-        className={`font-bold text-amber-900 ${
+        className={`font-bold text-amber-900 tracking-tight transition-colors group-hover:text-amber-700 ${
           variant === "map" ? "text-xl" : "text-2xl"
         }`}
       >
@@ -45,7 +49,13 @@ export default function NavBar({ variant = "default" }: NavBarProps) {
 
   return (
     <>
-    <nav className="sticky top-0 z-50 border-b border-amber-900/10 bg-white/70 backdrop-blur-xl">
+    <nav
+      className={`sticky top-0 z-50 transition-all duration-300 ${
+        scrolled
+          ? "border-b border-amber-900/10 bg-white/80 shadow-sm shadow-amber-900/5 backdrop-blur-xl"
+          : "border-b border-transparent bg-white/40 backdrop-blur-md"
+      }`}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center gap-3">
         {logo}
         <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1 justify-end">
@@ -79,7 +89,7 @@ export default function NavBar({ variant = "default" }: NavBarProps) {
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <span className="text-xs text-amber-600">👤</span>
+                    <User size={16} className="text-amber-600" />
                   )}
                 </div>
                 <span className="text-sm text-amber-900 hidden sm:inline font-medium group-hover:text-amber-700">

@@ -10,12 +10,13 @@ import {
 } from "react";
 import {
   getMe,
+  getFavoriteCities,
   login as apiLogin,
   register as apiRegister,
   updateProfile as apiUpdateProfile,
   uploadAvatar as apiUploadAvatar,
 } from "@/lib/api";
-import type { User } from "@/lib/api";
+import type { FavoriteCity, User } from "@/lib/api";
 
 const TOKEN_KEY = "beancompass_token";
 
@@ -24,10 +25,12 @@ interface AuthContextValue {
   token: string | null;
   loading: boolean;
   error: string | null;
+  favoriteCities: FavoriteCity[];
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, name?: string) => Promise<void>;
   logout: () => void;
   refreshUser: () => Promise<void>;
+  reloadFavoriteCities: () => Promise<void>;
   updateProfile: (data: { name?: string; bio?: string; profile_ring_color?: string | null }) => Promise<void>;
   uploadAvatar: (file: File) => Promise<void>;
   clearError: () => void;
@@ -45,21 +48,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [favoriteCities, setFavoriteCities] = useState<FavoriteCity[]>([]);
   const loadIdRef = useRef(0);
 
   const loadUser = useCallback(async (storedToken: string) => {
     const id = ++loadIdRef.current;
     try {
-      const userData = await getMe(storedToken);
+      // Fire both requests in parallel — cities arrive at zero extra cost.
+      const [userData, cities] = await Promise.all([
+        getMe(storedToken),
+        getFavoriteCities(storedToken).catch(() => [] as FavoriteCity[]),
+      ]);
       if (id !== loadIdRef.current) return;
       setUser(userData);
       setToken(storedToken);
+      setFavoriteCities(cities);
       setError(null);
     } catch (err) {
       if (id !== loadIdRef.current) return;
       localStorage.removeItem(TOKEN_KEY);
       setUser(null);
       setToken(null);
+      setFavoriteCities([]);
       setError(getLoadUserErrorMessage(err));
     } finally {
       if (id === loadIdRef.current) {
@@ -114,6 +124,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem(TOKEN_KEY);
     setUser(null);
     setToken(null);
+    setFavoriteCities([]);
     setLoading(false);
     setError(null);
   }, []);
@@ -122,6 +133,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const stored = typeof window !== "undefined" ? localStorage.getItem(TOKEN_KEY) : null;
     if (stored) await loadUser(stored);
   }, [loadUser]);
+
+  const reloadFavoriteCities = useCallback(async () => {
+    const stored = typeof window !== "undefined" ? localStorage.getItem(TOKEN_KEY) : null;
+    if (!stored) return;
+    const list = await getFavoriteCities(stored).catch(() => [] as FavoriteCity[]);
+    setFavoriteCities(list);
+  }, []);
 
   const updateProfile = useCallback(
     async (data: { name?: string; bio?: string; profile_ring_color?: string | null }) => {
@@ -147,10 +165,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     token,
     loading,
     error,
+    favoriteCities,
     login,
     register,
     logout,
     refreshUser,
+    reloadFavoriteCities,
     updateProfile,
     uploadAvatar,
     clearError,

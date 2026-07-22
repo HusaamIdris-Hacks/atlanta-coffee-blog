@@ -1,13 +1,24 @@
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 import uuid
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database import get_db
-from models import CoffeeShop, Review, User
-from schemas import ReviewWithShopResponse, TokenResponse, UserCreate, UserLogin, UserProfileUpdate, UserResponse
+from models import CoffeeShop, PasswordResetToken, RESET_TOKEN_TTL_HOURS, Review, User
+from schemas import (
+    PasswordReset,
+    PasswordResetRequest,
+    ReviewWithShopResponse,
+    TokenResponse,
+    UserCreate,
+    UserLogin,
+    UserProfileUpdate,
+    UserResponse,
+)
 from auth import create_access_token, get_current_user_optional, verify_password, hash_password
+from services.email import send_password_reset_email
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
@@ -162,4 +173,68 @@ async def upload_avatar(
     await db.commit()
     await db.refresh(current_user)
     return current_user
+
+
+@router.post("/forgot-password", status_code=status.HTTP_202_ACCEPTED)
+async def forgot_password(
+    data: PasswordResetRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    """Request a password-reset link.
+
+    Always returns 202 regardless of whether the email exists — this prevents
+    account-enumeration attacks.
+    """
+    result = await db.execute(select(User).where(User.email == data.email))
+    user = result.scalar_one_or_none()
+
+    if user:
+        # Invalidate any previous reset tokens for this user.
+        await db.execute(
+            delete(PasswordResetToken).where(PasswordResetToken.user_id == user.id)
+        )
+
+        raw_token, token_hash = PasswordResetToken.generate()
+        expires_at = datetime.now(timezone.utc) + timedelta(hours=RESET_TOKEN_TTL_HOURS)
+        db.add(PasswordResetToken(user_id=user.id, token_hash=token_hash, expires_at=expires_at))
+        await db.commit()
+
+        # Fire-and-forget: don't let email failure block the response.
+        await send_password_reset_email(user.email, raw_token)
+
+    return {"detail": "If that email is registered, a reset link has been sent."}
+
+
+@router.post("/reset-password", status_code=status.HTTP_200_OK)
+async def reset_password(
+    data: PasswordReset,
+    db: AsyncSession = Depends(get_db),
+):
+    """Set a new password using a valid reset token."""
+    token_hash = PasswordResetToken.hash_token(data.token)
+
+    result = await db.execute(
+        select(PasswordResetToken).where(PasswordResetToken.token_hash == token_hash)
+    )
+    record = result.scalar_one_or_none()
+
+    now = datetime.now(timezone.utc)
+    # Treat missing and expired tokens identically to prevent timing attacks.
+    if record is None or record.expires_at.replace(tzinfo=timezone.utc) < now:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Reset link is invalid or has expired.",
+        )
+
+    user_result = await db.execute(select(User).where(User.id == record.user_id))
+    user = user_result.scalar_one_or_none()
+    if not user:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User not found.")
+
+    user.password_hash = hash_password(data.new_password)
+    # Consume the token — single use.
+    await db.delete(record)
+    await db.commit()
+
+    return {"detail": "Password updated successfully."}
 

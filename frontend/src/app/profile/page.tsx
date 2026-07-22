@@ -3,8 +3,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { ChevronDown, Star, User } from "lucide-react";
 import NavBar from "@/components/NavBar";
 import ShopCard from "@/components/ShopCard";
+import Stars from "@/components/Stars";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import {
   deleteReview,
@@ -194,7 +196,7 @@ export default function ProfilePage() {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <span className="text-amber-600">👤</span>
+                  <User size={32} className="text-amber-600" />
                 )}
               </div>
               <div>
@@ -343,9 +345,10 @@ export default function ProfilePage() {
             className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-amber-50 transition-colors"
           >
             <h2 className="text-lg font-semibold text-amber-900">My reviews</h2>
-            <span className={`text-amber-600 transition-transform ${reviewsOpen ? "rotate-180" : ""}`}>
-              ▼
-            </span>
+            <ChevronDown
+              size={20}
+              className={`text-amber-600 transition-transform ${reviewsOpen ? "rotate-180" : ""}`}
+            />
           </button>
           {reviewsOpen && (
             <div className="border-t border-amber-100 px-6 py-4">
@@ -398,10 +401,17 @@ export default function ProfilePage() {
                                 key={star}
                                 type="button"
                                 onClick={() => setEditRating(star)}
-                                className="text-2xl leading-none"
+                                className="leading-none hover:scale-110 transition-transform"
                                 aria-label={`${star} stars`}
                               >
-                                {star <= editRating ? "★" : "☆"}
+                                <Star
+                                  size={24}
+                                  className={
+                                    star <= editRating
+                                      ? "fill-amber-400 text-amber-400"
+                                      : "fill-none text-amber-300"
+                                  }
+                                />
                               </button>
                             ))}
                           </div>
@@ -432,9 +442,9 @@ export default function ProfilePage() {
                         </div>
                       ) : (
                         <>
-                          <p className="text-amber-600 text-sm mt-2">
-                            {"★".repeat(r.rating)}
-                            {"☆".repeat(5 - r.rating)} {r.rating}/5 ·{" "}
+                          <p className="flex items-center gap-1.5 text-gray-500 text-sm mt-2">
+                            <Stars value={r.rating} size={14} />
+                            {r.rating}/5 ·{" "}
                             {new Date(r.updated_at).toLocaleDateString()}
                           </p>
                           {r.comment && (

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { ChevronDown, Coffee, LocateFixed, X } from "lucide-react";
 import Map, { Marker, NavigationControl } from "react-map-gl/mapbox";
 import type { MapRef } from "react-map-gl/mapbox";
 import type { Map as MapboxMap } from "mapbox-gl";
@@ -9,7 +10,6 @@ import "mapbox-gl/dist/mapbox-gl.css";
 
 import {
   deleteFavoriteCity,
-  getFavoriteCities,
   getShopById,
   getShopsInBounds,
   getShopsNearest,
@@ -61,7 +61,7 @@ function mergeShopsById(a: CoffeeShop[], b: CoffeeShop[]): CoffeeShop[] {
 
 export default function CoffeeMap() {
   const searchParams = useSearchParams();
-  const { token, user } = useAuth();
+  const { token, user, favoriteCities, reloadFavoriteCities } = useAuth();
   const { showToast } = useToast();
   const mapPageBridge = useMapPageBridge();
   const mapRef = useRef<MapRef>(null);
@@ -76,7 +76,6 @@ export default function CoffeeMap() {
   const [error, setError] = useState<string | null>(null);
   const [areaBusy, setAreaBusy] = useState(false);
 
-  const [favoriteCities, setFavoriteCities] = useState<FavoriteCity[]>([]);
   const [citiesMenuOpen, setCitiesMenuOpen] = useState(false);
   const [mapZoom, setMapZoom] = useState(11.5);
 
@@ -156,30 +155,13 @@ export default function CoffeeMap() {
     [loadShopsForMap, showToast]
   );
 
-  const reloadSavedCities = useCallback(async () => {
-    if (!token || !user) {
-      setFavoriteCities([]);
-      return;
-    }
-    try {
-      const list = await getFavoriteCities(token);
-      setFavoriteCities(list);
-    } catch {
-      setFavoriteCities([]);
-    }
-  }, [token, user]);
-
-  useEffect(() => {
-    void reloadSavedCities();
-  }, [reloadSavedCities]);
-
   useEffect(() => {
     if (!mapPageBridge?.setBridge) return;
     mapPageBridge.setBridge({
       focusCity,
-      reloadSavedCities,
+      reloadSavedCities: reloadFavoriteCities,
     });
-  }, [mapPageBridge?.setBridge, focusCity, reloadSavedCities]);
+  }, [mapPageBridge?.setBridge, focusCity, reloadFavoriteCities]);
 
   useEffect(() => {
     const setB = mapPageBridge?.setBridge;
@@ -265,7 +247,7 @@ export default function CoffeeMap() {
     if (!token) return;
     try {
       await deleteFavoriteCity(token, city.id);
-      setFavoriteCities((prev) => prev.filter((c) => c.id !== city.id));
+      await reloadFavoriteCities();
       showToast("Removed saved city", "info");
     } catch (err) {
       showToast(
@@ -279,7 +261,7 @@ export default function CoffeeMap() {
     return (
       <div className="flex items-center justify-center h-full bg-amber-50">
         <div className="text-center p-8">
-          <p className="text-2xl mb-2">☕</p>
+          <Coffee size={32} className="mx-auto mb-2 text-amber-700" />
           <p className="text-amber-900 font-semibold mb-1">
             Couldn&apos;t load coffee shops
           </p>
@@ -327,11 +309,11 @@ export default function CoffeeMap() {
           >
             <button
               type="button"
-              className="flex flex-col items-center group cursor-pointer"
+              className="group flex cursor-pointer flex-col items-center"
               aria-label={`View ${shop.name}`}
             >
-              <span className="text-2xl group-hover:scale-125 transition-transform drop-shadow-md">
-                ☕
+              <span className="grid h-9 w-9 place-items-center rounded-full rounded-bl-sm border-2 border-white bg-linear-to-br from-amber-600 to-amber-800 text-white shadow-md transition-transform duration-200 group-hover:scale-125 group-hover:-translate-y-0.5">
+                <Coffee size={17} />
               </span>
             </button>
           </Marker>
@@ -355,7 +337,7 @@ export default function CoffeeMap() {
                 aria-label={`Go to saved city ${city.label}`}
                 title={city.label}
               >
-                <span className="text-sm font-bold leading-none">⌖</span>
+                <LocateFixed size={16} />
               </button>
             </Marker>
           ))}
@@ -368,10 +350,14 @@ export default function CoffeeMap() {
             <button
               type="button"
               onClick={() => setCitiesMenuOpen((o) => !o)}
-              className="rounded-xl border border-amber-200 bg-white/95 px-3 py-2 text-sm font-medium text-amber-900 shadow-lg hover:bg-amber-50 max-w-40 truncate"
+              className="flex items-center gap-1.5 rounded-xl border border-amber-200 bg-white/95 px-3 py-2 text-sm font-medium text-amber-900 shadow-lg hover:bg-amber-50 max-w-40"
               title="Saved cities"
             >
-              Saved cities ▾
+              <span className="truncate">Saved cities</span>
+              <ChevronDown
+                size={16}
+                className={`shrink-0 transition-transform ${citiesMenuOpen ? "rotate-180" : ""}`}
+              />
             </button>
             {citiesMenuOpen && (
               <ul className="absolute right-0 z-30 mt-1.5 max-h-64 min-w-48 overflow-y-auto rounded-xl border border-amber-200 bg-white py-1 shadow-xl">
@@ -392,11 +378,11 @@ export default function CoffeeMap() {
                       </button>
                       <button
                         type="button"
-                        className="shrink-0 px-2 py-2 text-gray-400 hover:text-red-600"
+                        className="flex shrink-0 items-center px-2 py-2 text-gray-400 hover:text-red-600"
                         aria-label={`Remove ${city.label}`}
                         onClick={(e) => void handleRemoveCity(e, city)}
                       >
-                        ×
+                        <X size={15} />
                       </button>
                     </li>
                   ))}

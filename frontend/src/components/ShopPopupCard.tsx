@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
+import { Globe, Heart, MapPin, Star, X } from "lucide-react";
+import Stars from "@/components/Stars";
 import {
   addFavorite,
   createReview,
@@ -130,18 +132,22 @@ export default function ShopPopupCard({
 
   return (
     <>
-      <div className="w-80 max-h-[min(90vh,36rem)] flex flex-col rounded-xl bg-white shadow-xl border border-amber-200 overflow-hidden">
-        <div className="bg-linear-to-r from-amber-800 to-amber-700 px-4 py-3 flex items-start justify-between shrink-0">
-          <h3 className="text-white font-bold text-base leading-tight pr-2">
+      <div className="w-80 max-h-[min(90vh,36rem)] flex flex-col rounded-2xl bg-white shadow-2xl ring-1 ring-amber-200/70 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+        <div className="relative overflow-hidden bg-linear-to-r from-amber-800 to-amber-700 px-4 py-3.5 flex items-start justify-between shrink-0">
+          <div
+            aria-hidden
+            className="absolute -right-8 -top-10 h-24 w-24 rounded-full bg-white/10 blur-xl"
+          />
+          <h3 className="relative text-white font-bold text-base leading-tight pr-2">
             {shop.name}
           </h3>
           <button
             type="button"
             onClick={onClose}
-            className="text-white/70 hover:text-white text-lg leading-none shrink-0 min-w-11 min-h-11 flex items-center justify-center"
+            className="relative text-white/70 hover:text-white hover:rotate-90 transition-transform duration-300 shrink-0 min-w-11 min-h-11 flex items-center justify-center"
             aria-label="Close"
           >
-            ✕
+            <X size={18} />
           </button>
         </div>
 
@@ -152,10 +158,20 @@ export default function ShopPopupCard({
                 type="button"
                 onClick={handleFavoriteToggle}
                 disabled={favoriteBusy}
-                className="rounded-xl border border-amber-200 bg-white px-3 py-2 text-sm font-medium text-amber-900 shadow-sm hover:-translate-y-0.5 hover:bg-amber-50 disabled:opacity-50"
+                className={`rounded-full border px-4 py-2 text-sm font-semibold shadow-sm transition-all duration-200 hover:-translate-y-0.5 disabled:opacity-50 ${
+                  shop.is_favorited
+                    ? "border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-100"
+                    : "border-amber-200 bg-white text-amber-900 hover:bg-amber-50"
+                }`}
                 aria-label={shop.is_favorited ? "Remove from favorites" : "Add to favorites"}
               >
-                {favoriteBusy ? "…" : shop.is_favorited ? "♥ Favorited" : "♡ Add to favorites"}
+                <span className="flex items-center gap-1.5">
+                  <Heart
+                    size={15}
+                    className={shop.is_favorited ? "fill-rose-500 text-rose-500" : ""}
+                  />
+                  {favoriteBusy ? "…" : shop.is_favorited ? "Favorited" : "Add to favorites"}
+                </span>
               </button>
             </div>
           )}
@@ -167,16 +183,13 @@ export default function ShopPopupCard({
             className="text-sm text-gray-600 flex items-start gap-1.5 hover:text-amber-800 hover:underline transition-colors"
             title="Get directions in Google Maps"
           >
-            <span className="shrink-0">📍</span>
+            <MapPin size={15} className="mt-0.5 shrink-0 text-amber-600/70" />
             <span>{shop.address}</span>
           </a>
 
           {shop.avg_rating !== null ? (
             <div className="flex items-center gap-2 text-sm">
-              <span className="text-amber-500">
-                {"★".repeat(Math.round(shop.avg_rating))}
-                {"☆".repeat(5 - Math.round(shop.avg_rating))}
-              </span>
+              <Stars value={shop.avg_rating} size={15} />
               <span className="text-gray-600">
                 {shop.avg_rating.toFixed(1)} ({shop.review_count}{" "}
                 {shop.review_count === 1 ? "review" : "reviews"})
@@ -197,7 +210,7 @@ export default function ShopPopupCard({
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 text-sm font-semibold text-amber-800 hover:text-orange-600 transition-colors"
             >
-              🌐 Visit Website
+              <Globe size={15} /> Visit Website
             </a>
           )}
 
@@ -276,10 +289,17 @@ export default function ShopPopupCard({
                       key={r}
                       type="button"
                       onClick={() => setReviewRating(r)}
-                      className="text-2xl leading-none hover:scale-110 transition-transform"
+                      className="leading-none hover:scale-110 transition-transform"
                       aria-label={`Rate ${r} stars`}
                     >
-                      {r <= reviewRating ? "★" : "☆"}
+                      <Star
+                        size={24}
+                        className={
+                          r <= reviewRating
+                            ? "fill-amber-400 text-amber-400"
+                            : "fill-none text-amber-300"
+                        }
+                      />
                     </button>
                   ))}
                 </div>
@@ -334,10 +354,7 @@ export default function ShopPopupCard({
                     className="text-sm p-2 rounded-xl bg-gray-50 border border-gray-100"
                   >
                     <div className="flex items-center gap-2">
-                      <span className="text-amber-500">
-                        {"★".repeat(r.rating)}
-                        {"☆".repeat(5 - r.rating)}
-                      </span>
+                      <Stars value={r.rating} size={13} />
                       <span className="text-gray-500 text-xs">
                         {new Date(r.updated_at).toLocaleDateString()}
                       </span>

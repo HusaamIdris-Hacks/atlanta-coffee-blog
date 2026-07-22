@@ -1,6 +1,8 @@
 from sqlalchemy import String, Integer, Float, DateTime, ForeignKey, Text, UniqueConstraint, CheckConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship, DeclarativeBase
 from datetime import datetime, timezone
+import secrets
+import hashlib
 
 class Base(DeclarativeBase):
     pass
@@ -39,6 +41,9 @@ class User(Base):
     favorites: Mapped[list["Favorite"]] = relationship("Favorite", back_populates="user")
     reviews: Mapped[list["Review"]] = relationship("Review", back_populates="user")
     favorite_cities: Mapped[list["FavoriteCity"]] = relationship("FavoriteCity", back_populates="user")
+    password_reset_tokens: Mapped[list["PasswordResetToken"]] = relationship(
+        "PasswordResetToken", back_populates="user", cascade="all, delete-orphan"
+    )
 
 
 class FavoriteCity(Base):
@@ -48,7 +53,7 @@ class FavoriteCity(Base):
     __table_args__ = (UniqueConstraint("user_id", "label", name="uq_user_city_label"),)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
     label: Mapped[str] = mapped_column(String(255), nullable=False)
     lat: Mapped[float] = mapped_column(Float, nullable=False)
     lng: Mapped[float] = mapped_column(Float, nullable=False)
@@ -87,3 +92,38 @@ class Review(Base):
 
     user: Mapped["User"] = relationship("User", back_populates="reviews")
     shop: Mapped["CoffeeShop"] = relationship("CoffeeShop", back_populates="reviews")
+
+
+RESET_TOKEN_BYTES = 32
+RESET_TOKEN_TTL_HOURS = 1
+
+
+class PasswordResetToken(Base):
+    """Single-use, time-limited token for password reset.
+
+    The raw token is only ever held in memory; only its SHA-256 hash is
+    persisted so a DB leak can't be used to reset accounts.
+    """
+
+    __tablename__ = "password_reset_tokens"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    user_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    token_hash: Mapped[str] = mapped_column(String(64), unique=True, nullable=False, index=True)
+    expires_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+    user: Mapped["User"] = relationship("User", back_populates="password_reset_tokens")
+
+    @staticmethod
+    def generate() -> tuple[str, str]:
+        """Return (raw_token, token_hash). Store only the hash."""
+        raw = secrets.token_urlsafe(RESET_TOKEN_BYTES)
+        hashed = hashlib.sha256(raw.encode()).hexdigest()
+        return raw, hashed
+
+    @staticmethod
+    def hash_token(raw: str) -> str:
+        return hashlib.sha256(raw.encode()).hexdigest()

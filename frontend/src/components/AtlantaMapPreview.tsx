@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Coffee } from "lucide-react";
 import Map, { Marker } from "react-map-gl/mapbox";
 import "mapbox-gl/dist/mapbox-gl.css";
 
@@ -64,7 +65,9 @@ export default function AtlantaMapPreview() {
             longitude={shop.lng}
             anchor="bottom"
           >
-            <span className="text-xl drop-shadow-md transition-transform duration-200 hover:scale-110">☕</span>
+            <span className="grid h-7 w-7 place-items-center rounded-full rounded-bl-sm border-2 border-white bg-linear-to-br from-amber-600 to-amber-800 text-white shadow-md transition-transform duration-200 hover:scale-110">
+              <Coffee size={13} />
+            </span>
           </Marker>
         ))}
       </Map>

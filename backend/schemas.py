@@ -160,3 +160,16 @@ class ReviewWithShopResponse(BaseModel):
     comment: str | None
     created_at: datetime
     updated_at: datetime
+
+
+class PasswordResetRequest(BaseModel):
+    """Request a password-reset email."""
+
+    email: EmailStr
+
+
+class PasswordReset(BaseModel):
+    """Complete a password reset using the emailed token."""
+
+    token: str
+    new_password: str = Field(min_length=6, description="New password (min 6 characters)")

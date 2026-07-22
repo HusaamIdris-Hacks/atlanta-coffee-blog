@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { Coffee } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/contexts/ToastContext";
 import NavBar from "@/components/NavBar";
@@ -37,12 +38,19 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="relative min-h-screen flex flex-col overflow-hidden">
+      <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+        <div className="absolute -left-20 top-10 h-80 w-80 rounded-full bg-amber-300/25 blur-3xl animate-float-slow" />
+        <div className="absolute -right-20 bottom-0 h-96 w-96 rounded-full bg-orange-300/20 blur-3xl animate-float" />
+      </div>
       <NavBar />
       <main className="flex-1 flex items-center justify-center px-4 py-12">
-        <div className="w-full max-w-md">
+        <div className="w-full max-w-md animate-fade-up">
           <div className="surface-card p-8 sm:p-9">
             <div className="text-center mb-8">
+              <div className="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-2xl bg-linear-to-br from-orange-400 to-amber-600 text-white shadow-lg shadow-amber-900/20">
+                <Coffee size={28} />
+              </div>
               <h1 className="text-3xl font-bold text-amber-900">Create account</h1>
               <p className="text-gray-500 mt-2">
                 Join BeanCompassATL to save favorites and share reviews
